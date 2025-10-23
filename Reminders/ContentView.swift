@@ -9,30 +9,67 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var isEditing: Bool = false
-    // TODO: Add an @State property to hold a RemindersPage struct  
-    @State private var page: RemindersPage = RemindersPage( /* fill in */)
+    @State private var page: RemindersPage = RemindersPage(title: "List", items: [], color: .blue)
     
     var body: some View {
         VStack {
-            // TODO: Add header view
+            HStack {
+                Text(page.title)
+                    .font(.largeTitle.bold())
+                    .foregroundStyle(page.color)
+                Spacer()
+                Button {
+                    isEditing = true
+                } label: {
+                    Image(systemName: "info.circle")
+                        .font(.title3)
+                }
+                .buttonStyle(.plain)
+                .tint(page.color)
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
             
             List {
-                // TODO: Loop through the page's reminders using ForEach
-                ForEach(/* reminders */) { $reminder in
-                    // TODO: Display each reminder row
+                ForEach($page.items) { $reminder in
+                    HStack(spacing: 16) {
+                        Button {
+                            reminder.isCompleted.toggle()
+                        }
+                        
+                        label: {
+                            Image(systemName: reminder.isCompleted ? "checkmark.circle.fill" : "circle")
+                                .font(.system(size: 24))
+                        }
+                        .buttonStyle(.plain)
+                        .tint(page.color)
+
+                        TextField("Reminder", text: $reminder.title)
+                            .font(.title3)
+                    }
+                    .padding(.vertical, 8)
                 }
                 .onDelete { indexSet in
                     page.items.remove(atOffsets: indexSet)
                 }
             }
             .listStyle(.plain)
-            
-            // TODO: Add footer view
+            .overlay(alignment: .bottomTrailing) {
+                Button {
+                    page.items.append(Reminder(title: "", isCompleted: false))
+                }
+                label: {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 48, weight: .semibold))
+                }
+                .foregroundStyle(page.color)
+                .padding(.trailing, 24)
+                .padding(.bottom, 16)
+            }
 
         }
         .sheet(isPresented: $isEditing) {
-            // TODO: Add remaining binding
-            EditSheet(selectedColor: /* page color */)
+            EditSheet(selectedColor: $page.color, selectedTitle: $page.title)
         }
     }
 }
